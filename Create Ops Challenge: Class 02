@@ -1,0 +1,6 @@
+# script andregraca.sh
+# Copies /var/log/syslog to the current working directory
+# Appends the current date and time to the filename
+# For shell scripts, format your code according to the shell style guide linked above.
+
+cp /var/log/syslog "syslog_$(date '+%Y%m%d_%H%M%S').log"
