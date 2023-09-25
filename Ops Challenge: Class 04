@@ -1,0 +1,47 @@
+#Create a bash script that launches a menu system with the following options:
+#Hello world (prints “Hello world!” to the screen)
+#Ping self (pings this computer’s loopback address)
+#IP info (print the network adapter information for this computer)
+#Exit
+#Next, the user input should be requested.
+#The program should next use a conditional statement to evaluate the user’s input, then act according to what the user selected.
+#Use a loop to bring up the menu again after the request has been executed.
+
+# 'script_ping.sh'
+
+#!/bin/bash
+
+while true; do
+    # Display the menu
+    echo "Menu:"
+    echo "1. Hello world"
+    echo "2. Ping self"
+    echo "3. IP info"
+    echo "4. Exit"
+    
+    # Read user input
+    read -p "Please select an option (1/2/3/4): " choice
+    
+    case $choice in
+        1)
+            echo "Hello world!"
+            ;;
+        2)
+            ping -c 4 127.0.0.1  # Ping the loopback address four times
+            ;;
+        3)
+            ifconfig  # Display network adapter information
+            ;;
+        4)
+            echo "Exiting the menu."
+            exit 0
+            ;;
+        *)
+            echo "Invalid option. Please select a valid option (1/2/3/4)."
+            ;;
+    esac
+
+    # Pause and wait for user input to continue
+    read -p "Press Enter to continue..."
+    clear  # Clear the screen for the next iteration
+done
