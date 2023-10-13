@@ -1,1 +1,43 @@
+                       
+#!/bin/bash
+
+#Scrip:   Ops Challenge 05
+#Author   André Graça
+#Date of lateste revision:  13/10/2023
+#Purpose:   Clearing Logs
+
+
+# Define the backup directory
+backup_dir="/var/log/backups"
+
+# Create the backup directory if it doesn't exist
+mkdir -p "$backup_dir"
+
+# Get the current timestamp
+timestamp=$(date +'%Y%m%d%H%M%S')
+
+# Function to print file size and compress
+compress_log_file() {
+  file="$1"
+  size=$(du -h "$file" | awk '{print $1}')
+  echo "File size of $file before compression: $size"
+  gzip -c "$file" > "$backup_dir/$(basename $file)-$time>
+}
+
+# List of log files to compress
+log_files=("/var/log/syslog" "/var/log/wtmp")
+
+# Loop through and compress each log file
+for log_file in "${log_files[@]}"; do
+  if [ -e "$log_file" ]; then
+    compress_log_file "$log_file"
+  else
+    echo "File $log_file does not exist."
+  fi
+
+# To delete all .log files (Only use when necessary, you can delete files necessary for the operation of the System. BE VERY CAREFUL)
+  # rm -r /var/log/*.log
+
+done
+
 
