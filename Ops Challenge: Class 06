@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+
+print ("hello Kalimeros")
+
+name = "André"
+
+print (name)
+
+import os
+
+# Define the bash commands
+commands = [
+    "whoami",
+    "ip a",
+    "lshw -short"
+]
+
+# Execute the commands
+for command in commands:
+    os.system(command)
