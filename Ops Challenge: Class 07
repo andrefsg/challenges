@@ -1,53 +1,40 @@
 #!/usr/bin/env python3
 # name André Graça
 
-
 import os
 
-
-
-# Function to generate directory structure
-
-def generate_directory_structure(user_path):
-
-    for root, dirs, files in os.walk(user_path):
-
-        # Print the current directory
-
-        print("==root==")
-
-        print(root)
-
-        # Print sub-directories
-
-        print("==dirs==")
-
-        for directory in dirs:
-
-            print(os.path.join(root, directory))
-
-        # Print files
-
-        print("==files==")
-
-        for file in files:
-
-            print(os.path.join(root, file))
+# Function to generate directory structure and save it to a text file
+def generate_directory_structure(user_path, output_file):
+    with open(output_file, "w") as file:
+        for root, dirs, files in os.walk(user_path):
+            # Print and write the current directory to the file
+            print("==root==")
+            print(root)
+            file.write("==root==\n")
+            file.write(root + "\n")
+            # Print and write sub-directories to the file
+            print("==dirs==")
+            file.write("==dirs==\n")
+            for directory in dirs:
+                print(os.path.join(root, directory))
+                file.write(os.path.join(root, directory) + "\n")
+            # Print and write files to the file
+            print("==files==")
+            file.write("==files==\n")
+            for file_name in files:
+                print(os.path.join(root, file_name))
+                file.write(os.path.join(root, file_name) + "\n")
 
 # Main
-
 if __name__ == "__main__":
-
-    # Read user input for the directory path
-
     user_path = input("Enter the directory path: ")
-
     if os.path.exists(user_path):
-
-        generate_directory_structure(user_path)
-
+        desktop_path = os.path.expanduser("~/Desktop")  # Get the user's desktop path
+        output_file = os.path.join(desktop_path, "directory_structure.txt")  # Specify the output file on the desktop
+        generate_directory_structure(user_path, output_file)
+        print(f"Directory structure saved to {output_file}")
     else:
+        print("The provided directory path does not exist.")
 
-        print("The provided directory path does not ex>
 
 
