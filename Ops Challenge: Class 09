@@ -1,0 +1,100 @@
+print ('=====Exp-01=====')
+#Using the "equals" condition (a == b) with an "elif" and "else"
+a = 10
+b = 10
+
+if a == b:
+    print("a is equal to b")
+elif a < b:
+    print("a is less than b")
+else:
+    print("a is greater than b")
+
+
+print ('=====Exp-02=====')
+#Using the "not equals" condition (a != b) with an "if" and "else"
+a = 10
+b = 20
+
+if a != b:
+    print("a is not equal to b")
+else:
+    print("a is equal to b")
+
+print ('=====Exp-03=====')
+#Using the "less than" condition (a < b) with an "if" and "elif"
+a = 5
+b = 10
+
+if a < b:
+    print("a is less than b")
+elif a == b:
+    print("a is equal to b")
+else:
+    print("a is greater than b")
+
+
+print ('=====Exp-04=====')
+#Using the "greater than or equal to" condition (a >= b) with an "if" and "else"
+a = 15
+b = 10
+
+if a >= b:
+    print("a is greater than or equal to b")
+else:
+    print("a is less than b")
+
+
+print ('=====Exp-05=====')
+   # Using "and" between conditions in an if statement:
+
+x = 5
+y = 10
+
+if x < 10 and y > 5:
+    print("Both conditions are met: x is less than 10 and y is greater than 5")
+else:
+    print("At least one condition is not met.")
+  #In this example, the statement inside the if block will execute only if both conditions are true.
+
+print ('=====Exp-06=====')
+
+  #Using "or" between conditions in an if statement:
+
+temperature = 25
+humidity = 70
+
+if temperature > 30 or humidity > 80:
+    print("One or both conditions are met: Temperature is greater than 30 or humidity is greater than 80")
+else:
+    print("Neither condition is met.")  
+#In this example, the statement inside the if block will execute if at least one of the conditions is true.
+
+
+print ('=====Exp-07=====')
+#Creating a nested if statement:
+
+x = 15
+
+if x > 10:
+    if x < 20:
+        print("x is greater than 10 and less than 20")
+    else:
+        print("x is greater than or equal to 20")
+else:
+    print("x is not greater than 10")
+#In this example, the nested if statement checks two conditions, one within the other if block.
+
+print ('=====Exp-8=====')
+#Using "pass" to avoid errors in an if statement:
+
+x = 5
+y = 10
+
+if x < 10:
+    pass
+else:
+    print("x is not less than 10")
+
+# The use of "pass" in the if block allows the code to continue without any action if the condition is met.
+# In this example, the "pass" statement is used to indicate that no action should be taken if the condition is true.    
