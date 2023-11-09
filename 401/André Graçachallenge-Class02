@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# name André Graça
+
+
+
+import time
+from multiping import MultiPing
+
+def ping_destination(destination_ip, log_file):
+    while True:
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+
+        mp = MultiPing([destination_ip])
+        mp.send()
+        responses, _ = mp.receive(1)  # Wait for up to 1 second for responses
+
+        if responses:
+            status = "Network Active"
+        else:
+            status = "Network Inactive"
+
+        log_entry = f"{timestamp} {status} to {destination_ip}"
+        print(log_entry)
+
+        with open(log_file, 'a') as f:
+            f.write(log_entry + '\n')
+        time.sleep(2)
+
+if __name__ == "__main__":
+    target_ip = input("Enter the target IP address: ")
+    log_file = "ping_log.txt"
+
+    ping_destination(target_ip, log_file)
+
+
+
+#This command will install the multiping library, which is required for the script to work : pip install multiping
+
+#you can add your user to the netdev group: bash:  sudo usermod -aG netdev $USER
+
+#This command gives the python3 executable the CAP_NET_RAW capability, allowing it to send raw packets
+#without requiring root privileges. After running this command, try running your script without sudo:
+#  sudo setcap cap_net_raw=ep $(readlink -f $(which python3))
