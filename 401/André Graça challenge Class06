@@ -5,7 +5,10 @@ def generate_key():
     return Fernet.generate_key()
 
 def load_key():
-    return open("secret.key", "rb").read()
+    if os.path.exists("secret.key"):
+        return open("secret.key", "rb").read()
+    else:
+        return generate_key()
 
 def save_key(key):
     with open("secret.key", "wb") as key_file:
@@ -26,47 +29,26 @@ def decrypt_file(file_path, key):
         encrypted_data = file.read()
 
     fernet = Fernet(key)
-    decrypted_data = fernet.decrypt(encrypted_data)
-
-    with open(file_path[:-4], "wb") as file:
-        file.write(decrypted_data)
-
-def encrypt_string(plaintext, key):
-    fernet = Fernet(key)
-    encrypted_data = fernet.encrypt(plaintext.encode())
-
-    print("Encrypted String:", encrypted_data.decode())
-
-def decrypt_string(ciphertext, key):
-    fernet = Fernet(key)
-    decrypted_data = fernet.decrypt(ciphertext.encode())
-
-    print("Decrypted String:", decrypted_data.decode())
+    
+    try:
+        decrypted_data = fernet.decrypt(encrypted_data)
+        with open(file_path[:-4], "wb") as file:
+            file.write(decrypted_data)
+    except Exception as e:
+        print("Decryption error:", e)
 
 def main():
-    mode = int(input("Select mode (1: Encrypt File, 2: Decrypt File, 3: Encrypt String, 4: Decrypt String): "))
+    mode = int(input("Select mode (1: Encrypt File, 2: Decrypt File): "))
 
-    if mode in [1, 2]:
+    if mode == 1:
         file_path = input("Enter file path: ")
         key = generate_key()
-
-        if mode == 1:
-            encrypt_file(file_path, key)
-            os.remove(file_path)  # Delete the original file
-        elif mode == 2:
-            decrypt_file(file_path, key)
-            os.remove(file_path + ".enc")  # Delete the encrypted file
-
+        encrypt_file(file_path, key)
         save_key(key)
-    elif mode in [3, 4]:
-        plaintext = input("Enter cleartext string: ")
+    elif mode == 2:
+        file_path = input("Enter file path: ")
         key = load_key()
-
-        if mode == 3:
-            encrypt_string(plaintext, key)
-        elif mode == 4:
-            decrypt_string(plaintext, key)
+        decrypt_file(file_path, key)
 
 if __name__ == "__main__":
     main()
-
