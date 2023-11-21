@@ -1,1 +1,49 @@
+import smtplib
+import getpass
+import socket
+import time
+import os
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def send_email(subject, body):
+    sender_email = input("Enter your email address: ")
+    password = getpass.getpass("Enter your email password: ")
+
+    receiver_email = "bizzartgt23@gmail.com"
+    
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = subject
+
+    message.attach(MIMEText(body, "plain text"))
+
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+
+def check_host_status(previous_status):
+    current_status = "up"  # You should replace this with actual code to check the host status
+    host_ip = "127.0.0.1"  # Replace with the actual IP address of your host
+
+    if previous_status != current_status:
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        subject = f"Host Status Change - {current_status.upper()}"
+        body = f"Host IP: {host_ip}\nStatus Change: {previous_status.upper()} to {current_status.upper()}\nTimestamp: {timestamp}"
+        send_email(subject, body)
+
+def main():
+    # Optional: Check for environment variables
+    burner_email = os.getenv("BURNER_EMAIL_ADDRESS")
+    burner_password = os.getenv("BURNER_EMAIL_PASSWORD")
+
+    if not (burner_email and burner_password):
+        check_host_status("down")  # Assume the host is initially down
+
+    
+
+if __name__ == "__main__":
+    main()
 
