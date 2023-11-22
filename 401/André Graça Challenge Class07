@@ -56,7 +56,7 @@ def decrypt_folder(folder_path, password):
                 decrypt_file(file_path, password)
 
 if __name__ == "__main__":
-    folder_path = "C:\Users\casa2000\Desktop\401 cybersecurity\Lab07"
+    folder_path = "C:\Users\andre.corp\Desktop\lab07\teste"
     password = "secret password"
 
     # Encrypt folder and its contents
