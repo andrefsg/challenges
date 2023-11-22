@@ -1,0 +1,66 @@
+import os
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from base64 import urlsafe_b64encode, urlsafe_b64decode
+
+def derive_key(password, salt):
+    kdf = PBKDF2HMAC(
+        algorithm=algorithms.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+    return urlsafe_b64encode(kdf.derive(password.encode()))
+
+def encrypt_file(file_path, password):
+    with open(file_path, 'rb') as file:
+        plaintext = file.read()
+
+    salt = os.urandom(16)
+    key = derive_key(password, salt)
+    cipher = Cipher(algorithms.AES(key), modes.CFB(os.urandom(16)), backend=default_backend())
+    encryptor = cipher.encryptor()
+    ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+
+    with open(file_path + '.enc', 'wb') as file:
+        file.write(salt + ciphertext)
+
+def decrypt_file(file_path, password):
+    with open(file_path, 'rb') as file:
+        data = file.read()
+
+    salt = data[:16]
+    ciphertext = data[16:]
+
+    key = derive_key(password, salt)
+    cipher = Cipher(algorithms.AES(key), modes.CFB(os.urandom(16)), backend=default_backend())
+    decryptor = cipher.decryptor()
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
+    with open(file_path[:-4], 'wb') as file:
+        file.write(plaintext)
+
+def encrypt_folder(folder_path, password):
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            encrypt_file(file_path, password)
+
+def decrypt_folder(folder_path, password):
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith('.enc'):
+                file_path = os.path.join(root, file)
+                decrypt_file(file_path, password)
+
+if __name__ == "__main__":
+    folder_path = "\Users\andre.corp\Desktop\lab07\teste"
+    password = "password"
+
+    # Encrypt folder and its contents
+    encrypt_folder(folder_path, password)
+
+    # Decrypt folder and its contents
+    decrypt_folder(folder_path, password)
