@@ -2,53 +2,98 @@ from cryptography.fernet import Fernet
 import os
 
 def generate_key():
-    return Fernet.generate_key()
+    key = Fernet.generate_key()
+    with open("secret.key", "wb") as key_file:
+        key_file.write(key)
 
 def load_key():
-    if os.path.exists("secret.key"):
+    try:
         return open("secret.key", "rb").read()
-    else:
-        return generate_key()
+    except FileNotFoundError:
+        return None
 
 def save_key(key):
     with open("secret.key", "wb") as key_file:
         key_file.write(key)
 
 def encrypt_file(file_path, key):
-    with open(file_path, "rb") as file:
-        data = file.read()
+    try:
+        print("Encrypting file:", file_path)
 
-    fernet = Fernet(key)
-    encrypted_data = fernet.encrypt(data)
+        with open(file_path, "rb") as file:
+            data = file.read()
 
-    with open(file_path + ".enc", "wb") as file:
-        file.write(encrypted_data)
+        fernet = Fernet(key)
+        encrypted_data = fernet.encrypt(data)
+
+        with open(file_path + ".enc", "wb") as file:
+            file.write(encrypted_data)
+
+        print("Encryption successful.")
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
 
 def decrypt_file(file_path, key):
-    with open(file_path, "rb") as file:
-        encrypted_data = file.read()
-
-    fernet = Fernet(key)
-    
     try:
+        print("Decrypting file:", file_path)
+
+        with open(file_path, "rb") as file:
+            encrypted_data = file.read()
+
+        fernet = Fernet(key)
         decrypted_data = fernet.decrypt(encrypted_data)
+
         with open(file_path[:-4], "wb") as file:
             file.write(decrypted_data)
+
+        print("Decryption successful.")
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
     except Exception as e:
-        print("Decryption error:", e)
+        print(f"Error during decryption: {e}")
+
+def encrypt_string(plaintext, key):
+    fernet = Fernet(key)
+    encrypted_data = fernet.encrypt(plaintext.encode())
+
+    print("Encrypted String:", encrypted_data.decode())
+
+def decrypt_string(ciphertext, key):
+    try:
+        fernet = Fernet(key)
+        decrypted_data = fernet.decrypt(ciphertext.encode())
+
+        print("Decrypted String:", decrypted_data.decode())
+    except Exception as e:
+        print(f"Error during decryption: {e}")
 
 def main():
-    mode = int(input("Select mode (1: Encrypt File, 2: Decrypt File): "))
+    if not load_key():
+        generate_key()
+        print("New key generated.")
 
-    if mode == 1:
-        file_path = input("Enter file path: ")
-        key = generate_key()
-        encrypt_file(file_path, key)
-        save_key(key)
-    elif mode == 2:
+    mode = int(input("Select mode (1: Encrypt File, 2: Decrypt File, 3: Encrypt String, 4: Decrypt String): "))
+
+    if mode in [1, 2]:
         file_path = input("Enter file path: ")
         key = load_key()
-        decrypt_file(file_path, key)
+
+        if key is not None:
+            if mode == 1:
+                encrypt_file(file_path, key)
+            elif mode == 2:
+                decrypt_file(file_path + ".enc", key)
+
+    elif mode in [3, 4]:
+        plaintext = input("Enter cleartext string: ")
+        key = load_key()
+
+        if key is not None:
+            if mode == 3:
+                encrypt_string(plaintext, key)
+            elif mode == 4:
+                decrypt_string(plaintext, key)
 
 if __name__ == "__main__":
     main()
+
