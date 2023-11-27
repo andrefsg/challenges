@@ -1,66 +1,73 @@
 import os
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from base64 import urlsafe_b64encode, urlsafe_b64decode
+from cryptography.fernet import Fernet
+import argparse
 
-def derive_key(password, salt):
-    kdf = PBKDF2HMAC(
-        algorithm=algorithms.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-    )
-    return urlsafe_b64encode(kdf.derive(password.encode()))
+def generate_key(password):
+    key = Fernet.generate_key()
+    with open("key.key", "wb") as key_file:
+        key_file.write(key)
 
-def encrypt_file(file_path, password):
+def load_key():
+    return open("key.key", "rb").read()
+
+def encrypt_file(file_path, key):
     with open(file_path, 'rb') as file:
         plaintext = file.read()
 
-    salt = os.urandom(16)
-    key = derive_key(password, salt)
-    cipher = Cipher(algorithms.AES(key), modes.CFB(os.urandom(16)), backend=default_backend())
-    encryptor = cipher.encryptor()
-    ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+    cipher = Fernet(key)
+    ciphertext = cipher.encrypt(plaintext)
 
     with open(file_path + '.enc', 'wb') as file:
-        file.write(salt + ciphertext)
+        file.write(ciphertext)
 
-def decrypt_file(file_path, password):
+def decrypt_file(file_path, key):
     with open(file_path, 'rb') as file:
-        data = file.read()
+        ciphertext = file.read()
 
-    salt = data[:16]
-    ciphertext = data[16:]
-
-    key = derive_key(password, salt)
-    cipher = Cipher(algorithms.AES(key), modes.CFB(os.urandom(16)), backend=default_backend())
-    decryptor = cipher.decryptor()
-    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+    cipher = Fernet(key)
+    plaintext = cipher.decrypt(ciphertext)
 
     with open(file_path[:-4], 'wb') as file:
         file.write(plaintext)
 
-def encrypt_folder(folder_path, password):
+def encrypt_folder(folder_path, key):
     for root, _, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
-            encrypt_file(file_path, password)
+            encrypt_file(file_path, key)
 
-def decrypt_folder(folder_path, password):
+def decrypt_folder(folder_path, key):
     for root, _, files in os.walk(folder_path):
         for file in files:
             if file.endswith('.enc'):
                 file_path = os.path.join(root, file)
-                decrypt_file(file_path, password)
+                decrypt_file(file_path, key)
+
+def main():
+    parser = argparse.ArgumentParser(description='Encrypt or decrypt files/folders.')
+    parser.add_argument('action', choices=['encrypt', 'decrypt'], help='Specify whether to encrypt or decrypt.')
+    parser.add_argument('path', help='Path to file or folder.')
+
+    args = parser.parse_args()
+
+    password = input("Enter password: ")
+
+    if args.action == 'encrypt':
+        generate_key(password)
+        key = load_key()
+        if os.path.isfile(args.path):
+            encrypt_file(args.path, key)
+        elif os.path.isdir(args.path):
+            encrypt_folder(args.path, key)
+    elif args.action == 'decrypt':
+        key = load_key()
+        if os.path.isfile(args.path):
+            decrypt_file(args.path, key)
+        elif os.path.isdir(args.path):
+            decrypt_folder(args.path, key)
 
 if __name__ == "__main__":
-    folder_path = "C:\Users\andre.corp\Desktop\lab07\teste"
-    password = "secret password"
+    main()
 
-    # Encrypt folder and its contents
-    encrypt_folder(folder_path, password)
 
-    # Decrypt folder and its contents
-    decrypt_folder(folder_path, password)
+   
