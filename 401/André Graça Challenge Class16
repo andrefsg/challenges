@@ -1,0 +1,57 @@
+import time
+import re
+
+def iterate_word_list_with_delay(word_list_file_path, delay_seconds):
+    with open(word_list_file_path, 'r') as file:
+        for word in file:
+            # Remove leading/trailing whitespace
+            word = word.strip()
+
+            # Introduce a delay between words
+            time.sleep(delay_seconds)
+
+            # Print the current word
+            print(word)
+
+def search_word_list(user_input, word_list_file_path):
+    with open(word_list_file_path, 'r') as file:
+        word_list = [line.strip() for line in file]
+
+    if user_input in word_list:
+        print(f'The string "{user_input}" appears in the word list.')
+    else:
+        print(f'The string "{user_input}" does not appear in the word list.')
+
+def check_password_complexity(password, min_length, min_uppercase, min_digits, min_symbols):
+    length_condition = len(password) >= min_length
+    uppercase_condition = sum(1 for c in password if c.isupper()) >= min_uppercase
+    digits_condition = sum(1 for c in password if c.isdigit()) >= min_digits
+    symbols_condition = len(re.findall(r'[!@#$%^&*(),.?":{}|<>]', password)) >= min_symbols
+
+    print("Password complexity analysis:")
+    print(f"- Minimum length of {min_length} characters: {'Satisfied' if length_condition else 'Not satisfied'}")
+    print(f"- Minimum of {min_uppercase} uppercase letters: {'Satisfied' if uppercase_condition else 'Not satisfied'}")
+    print(f"- Minimum of {min_digits} digits: {'Satisfied' if digits_condition else 'Not satisfied'}")
+    print(f"- Minimum of {min_symbols} symbols: {'Satisfied' if symbols_condition else 'Not satisfied'}")
+
+    if length_condition and uppercase_condition and digits_condition and symbols_condition:
+        print("SUCCESS: Password meets all complexity requirements.")
+    else:
+        print("Password complexity requirements not fully satisfied.")
+
+# Mode 1: Iterate Word List with Delay
+word_list_path = input("Enter the path to the word list file: ")
+delay_seconds = float(input("Enter the delay between words (in seconds): "))
+iterate_word_list_with_delay(word_list_path, delay_seconds)
+
+# Mode 2: Search Word List
+user_input_string = input("\nEnter a string to search in the word list: ")
+search_word_list(user_input_string, word_list_path)
+
+# Mode 3: Password Complexity
+user_password = input("\nEnter a password to check its complexity: ")
+min_length_required = 8
+min_uppercase_required = 1
+min_digits_required = 1
+min_symbols_required = 1
+check_password_complexity(user_password, min_length_required, min_uppercase_required, min_digits_required, min_symbols_required)
