@@ -1,0 +1,58 @@
+#On the Python tool you added logging capabilities to:
+#Add a log rotation feature based on size
+
+
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configure the logger
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
+
+# Create a file handler that rotates when it reaches 1 MB
+handler = RotatingFileHandler("example.log", maxBytes=1e6, backupCount=5)
+handler.setLevel(logging.DEBUG)
+
+# Create a formatter and set it for the handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+logger.addHandler(handler)
+
+# Log some sample messages
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")
+
+
+#Stretch Goals
+#Add a log rotation feature based on time
+
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+# Configure the logger
+logger = logging.getLogger("my_logger_time_rotation")
+logger.setLevel(logging.DEBUG)
+
+# Create a file handler that rotates every midnight
+handler = TimedRotatingFileHandler("example_time_rotation.log", when="midnight", interval=1, backupCount=5)
+handler.setLevel(logging.DEBUG)
+
+# Create a formatter and set it for the handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+logger.addHandler(handler)
+
+# Log some sample messages
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")
+
