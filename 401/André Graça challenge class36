@@ -1,1 +1,101 @@
+import subprocess
+import telnetlib
+import re
+
+def get_user_input():
+    while True:
+        user_input = input("Please enter a URL or IP address: ")
+
+        # Check if the input is a valid URL or IP address using regular expressions
+        url_pattern = re.compile(r'^(http(s)?://)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/)?$')
+        ip_pattern = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
+
+        if url_pattern.match(user_input) or ip_pattern.match(user_input):
+            break
+        else:
+            print("Invalid input. Please enter a valid URL or IP address.")
+
+    while True:
+        port_input = input("Please enter a port number: ")
+
+        # Check if the input is a valid port number (between 1 and 65535)
+        port_pattern = re.compile(r'^[1-9]\d*$|^0$|^[1-5]\d{4}$|^[1-9]\d{0,3}$')
+
+        if port_pattern.match(port_input):
+            break
+        else:
+            print("Invalid input. Please enter a valid port number.")
+
+    return user_input, int(port_input)
+
+def banner_grabbing_netcat(target_address, target_port):
+    try:
+        # Run netcat command to grab the banner
+        command = 'nc -v -n -z -w 2 {} {}'.format(target_address, target_port)
+        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        # Check if the command was successful
+        if result.returncode == 0:
+            # Extract the banner from the result using regular expressions
+            banner_pattern = re.compile(r'^[^\n]+\n([^\n]+)\n')
+            match = banner_pattern.search(result.stdout)
+
+            if match:
+                banner = match.group(1)
+                print("Banner grabbed using netcat:\n{}".format(banner))
+            else:
+                print("No banner information available.")
+        else:
+            print("Error during banner grabbing using netcat:\n{}".format(result.stderr))
+
+    except Exception as e:
+        print("An error occurred: {}".format(str(e)))
+
+def banner_grabbing_telnet(target_address, target_port):
+    try:
+        # Create a Telnet object
+        tn = telnetlib.Telnet(target_address, target_port, timeout=2)
+
+        # Read banner information
+        banner = tn.read_until(b"\n", timeout=2).decode("utf-8").strip()
+
+        # Print the banner
+        if banner:
+            print("Banner grabbed using telnet:\n{}".format(banner))
+        else:
+            print("No banner information available.")
+
+        # Close the Telnet connection
+        tn.close()
+
+    except Exception as e:
+        print("An error occurred: {}".format(str(e)))
+
+def banner_grabbing_nmap(target_address):
+    try:
+        # Run Nmap command for banner grabbing on all well-known ports
+        command = 'nmap -p 1-1023 --script=banner {}'.format(target_address)
+        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        # Check if the command was successful
+        if result.returncode == 0:
+            print("Banner grabbing using Nmap successful:\n")
+            print(result.stdout)
+        else:
+            print("Error during banner grabbing using Nmap:\n{}".format(result.stderr))
+
+    except Exception as e:
+        print("An error occurred: {}".format(str(e)))
+
+# Get user input
+url_or_ip, port = get_user_input()
+
+# Perform banner grabbing using netcat
+banner_grabbing_netcat(url_or_ip, port)
+
+# Perform banner grabbing using telnet
+banner_grabbing_telnet(url_or_ip, port)
+
+# Perform banner grabbing using Nmap
+banner_grabbing_nmap(url_or_ip)
 
